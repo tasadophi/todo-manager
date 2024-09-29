@@ -3,7 +3,7 @@ import express, { Express } from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import path from "path";
-import helloRoutes from "@/routes/helloRoutes";
+import todoRoutes from "@/routes/todoRoutes";
 
 class Application {
   #app: Express = express();
@@ -36,7 +36,7 @@ class Application {
     this.#app.use(express.static(path.join(__dirname, "..")));
   }
   configRoutes() {
-    this.#app.use("/api/hello", helloRoutes);
+    this.#app.use("/api/todos", todoRoutes);
   }
 }
 
