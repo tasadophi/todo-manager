@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import path from "path";
 import todoRoutes from "@/routes/todoRoutes";
+import errorController from "@/controllers/errorController";
 
 class Application {
   #app: Express = express();
@@ -37,6 +38,7 @@ class Application {
   }
   configRoutes() {
     this.#app.use("/api/todos", todoRoutes);
+    this.#app.use(errorController);
   }
 }
 
