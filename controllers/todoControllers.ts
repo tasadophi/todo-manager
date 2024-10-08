@@ -9,6 +9,15 @@ export const getTodos = catchAsync(async (req: Request, res: Response) => {
     .json({ data: todos, message: "todos retrieved successfully !" });
 });
 
+export const getTodo = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const todo = await TodoModel.findById({ _id: id });
+  if (!todo) res.status(404).json({ message: `todo ${id} not found !` });
+  res
+    .status(200)
+    .json({ data: todo, message: "todo retrieved successfully !" });
+});
+
 export const createTodo = catchAsync(async (req: Request, res: Response) => {
   const { title, description } = req.body;
   if (!title) res.status(422).json({ message: "title is required!" });
@@ -24,7 +33,7 @@ export const updateTodo = catchAsync(async (req: Request, res: Response) => {
   const todo = await TodoModel.findByIdAndUpdate(
     { _id: id },
     { title, description, isDone },
-    { runValidators: true }
+    { runValidators: true, new: true }
   );
   if (!todo) res.status(404).json({ message: `todo ${id} not found !` });
   res.status(200).json({ data: todo, message: "todo updated successfully !" });
