@@ -2,6 +2,13 @@ import { Request, Response } from "express";
 import TodoModel from "@/models/todoModel";
 import catchAsync from "@/utils/catchAsync";
 
+export const getTodos = catchAsync(async (req: Request, res: Response) => {
+  const todos = await TodoModel.find({});
+  res
+    .status(200)
+    .json({ data: todos, message: "todos retrieved successfully !" });
+});
+
 export const createTodo = catchAsync(async (req: Request, res: Response) => {
   const { title, description } = req.body;
   if (!title) res.status(422).json({ message: "title is required!" });
