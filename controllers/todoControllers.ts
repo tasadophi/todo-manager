@@ -38,3 +38,10 @@ export const updateTodo = catchAsync(async (req: Request, res: Response) => {
   if (!todo) res.status(404).json({ message: `todo ${id} not found !` });
   res.status(200).json({ data: todo, message: "todo updated successfully !" });
 });
+
+export const deleteTodo = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const todo = await TodoModel.findByIdAndDelete({ _id: id });
+  if (!todo) res.status(404).json({ message: `todo ${id} not found !` });
+  res.status(204).json({ message: "todo deleted successfully !" });
+});
