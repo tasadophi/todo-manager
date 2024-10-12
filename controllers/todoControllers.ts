@@ -1,12 +1,24 @@
 import { Request, Response } from "express";
 import TodoModel from "@/models/todoModel";
 import catchAsync from "@/utils/catchAsync";
+import apiFeatures from "@/utils/apiFeatures";
 
 export const getTodos = catchAsync(async (req: Request, res: Response) => {
-  const todos = await TodoModel.find({});
-  res
-    .status(200)
-    .json({ data: todos, message: "todos retrieved successfully !" });
+  const page = req.query.page as string;
+  const limit = req.query.limit as string;
+  const { items, ...paginationData } = await apiFeatures(TodoModel).paginate({
+    page,
+    limit,
+  });
+
+  if (page && parseInt(page) > paginationData.pages) {
+    res.status(404).json({ message: "page is not exist !" });
+  }
+
+  res.status(200).json({
+    data: { todos: items, ...paginationData },
+    message: "todos retrieved successfully !",
+  });
 });
 
 export const getTodo = catchAsync(async (req: Request, res: Response) => {
