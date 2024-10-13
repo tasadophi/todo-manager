@@ -18,6 +18,8 @@ const todoSchema = new mongoose.Schema<ITodo>(
   { versionKey: false, timestamps: true }
 );
 
+todoSchema.index({ title: "text", description: "text" });
+
 const TodoModel = mongoose.model("Todo", todoSchema);
 
 export default TodoModel;

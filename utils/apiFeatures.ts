@@ -1,9 +1,26 @@
 import { Request } from "express";
-import { Model } from "mongoose";
+import { FilterQuery, Model } from "mongoose";
 
 function apiFeatures<T>(Model: Model<T>, queryString: Request["query"]) {
   return {
     query: Model.find(),
+    searchOnStrFields: function (fields: {
+      [x: string]: Request["query"][keyof Request["query"]];
+    }) {
+      const filters = Object.keys(fields)
+        .map((key) => ({
+          [key]: { $regex: fields[key] ? ".*" + fields[key] + ".*" : "" },
+        }))
+        .filter(
+          (filter) =>
+            Object.values(filter).filter((value) => !!value.$regex).length
+        );
+      if (filters.length)
+        this.query = this.query.find({
+          $or: filters as FilterQuery<T>[],
+        });
+      return this;
+    },
     sort: function () {
       this.query = this.query.sort("-createdAt");
       return this;
@@ -15,7 +32,7 @@ function apiFeatures<T>(Model: Model<T>, queryString: Request["query"]) {
       const count = await this.query.clone().countDocuments();
       const items = await this.query.skip(offset).limit(limitNumber);
       const pages = Math.ceil(count / limitNumber);
-      if (pageNumber > pages) throw new Error("page is not exist !");
+      if (pages && pageNumber > pages) throw new Error("page is not exist !");
       return { items, count, pages, page: pageNumber, limit: limitNumber };
     },
   };
