@@ -21,6 +21,37 @@ function apiFeatures<T>(Model: Model<T>, queryString: Request["query"]) {
         });
       return this;
     },
+    filterByDate: function () {
+      const getStartDate = () => {
+        if (queryString.startDate) {
+          const [year, month, day] = (queryString.startDate as string).split(
+            "-"
+          );
+          const startDate = new Date(`${year}-${month}-${day}`);
+          if (isNaN(startDate.getTime()))
+            throw new Error("startDate is invalid date !");
+          return { $gte: startDate };
+        }
+        return {};
+      };
+      const getEndDate = () => {
+        if (queryString.endDate) {
+          const [year, month, day] = (queryString.endDate as string).split("-");
+          const endDate = new Date(`${year}-${month}-${day}`);
+          if (isNaN(endDate.getTime()))
+            throw new Error("endDate is invalid date !");
+          return { $lt: endDate };
+        }
+        return {};
+      };
+      this.query = this.query.find({
+        createdAt: {
+          ...getStartDate(),
+          ...getEndDate(),
+        },
+      });
+      return this;
+    },
     sort: function () {
       this.query = this.query.sort("-createdAt");
       return this;

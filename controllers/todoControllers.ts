@@ -5,11 +5,13 @@ import apiFeatures from "@/utils/apiFeatures";
 
 export const getTodos = catchAsync(async (req: Request, res: Response) => {
   const { search } = req.query;
+
   const { items, ...paginationData } = await apiFeatures(TodoModel, req.query)
     .searchOnStrFields({
       name: search,
       description: search,
     })
+    .filterByDate()
     .sort()
     .paginate();
 
