@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import validations from "@/utils/validations";
 
-interface IUser {
+export interface IUser {
   email: string;
   name: string;
   password: string;
