@@ -56,7 +56,7 @@ export const signup = catchAsync(async (req: Request, res: Response) => {
   const { accessToken, refreshToken } = generateTokens(newUser);
 
   // Assigning refresh token in http-only cookie
-  res.cookie("jwt", refreshToken, {
+  res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     sameSite: "strict",
     secure: true,
@@ -93,7 +93,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   const { accessToken, refreshToken } = generateTokens(user);
 
   // Assigning refresh token in http-only cookie
-  res.cookie("jwt", refreshToken, {
+  res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     sameSite: "strict",
     secure: true,
@@ -101,4 +101,33 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   });
 
   return res.json({ accessToken, message: "user logged in successfully !" });
+});
+
+export const refresh = catchAsync(async (req: Request, res: Response) => {
+  if (!req.cookies.refreshToken) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  // Destructuring refreshToken from cookie
+  const refreshToken = req.cookies.refreshToken;
+
+  // Verifying refresh token
+  jwt.verify(
+    refreshToken,
+    process.env.JWT_REFRESH_SECRET as string,
+    async (err, decoded) => {
+      if (err) {
+        // Wrong Refresh Token
+        return res.status(401).json({ message: "Unauthorized" });
+      } else {
+        // Check if the email exists
+        const user = await UserModel.findOne({ _id: decoded.id });
+        if (!user) {
+          return res.status(401).json({ message: "Unauthorized" });
+        }
+        // generate tokens
+        const { accessToken } = generateTokens(user);
+        return res.json({ accessToken });
+      }
+    }
+  );
 });
