@@ -1,10 +1,12 @@
 import "dotenv/config";
 import express, { Express } from "express";
+import path from "path";
 import cors from "cors";
 import mongoose from "mongoose";
-import path from "path";
+import cookieParser from "cookie-parser";
 import todoRoutes from "@/routes/todoRoutes";
 import errorController from "@/controllers/errorController";
+import userRoutes from "@/routes/userRoutes";
 
 class Application {
   #app: Express = express();
@@ -33,11 +35,13 @@ class Application {
   configServer() {
     this.#app.use(cors({ credentials: true, origin: "*" }));
     this.#app.use(express.json());
+    this.#app.use(cookieParser());
     this.#app.use(express.urlencoded({ extended: true }));
     this.#app.use(express.static(path.join(__dirname, "..")));
   }
   configRoutes() {
     this.#app.use("/api/todos", todoRoutes);
+    this.#app.use("/api/user", userRoutes);
     this.#app.use(errorController);
   }
 }
