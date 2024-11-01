@@ -2,7 +2,7 @@ import "dotenv/config";
 import express, { Express } from "express";
 import path from "path";
 import cors from "cors";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import cookieParser from "cookie-parser";
 import todoRoutes from "@/routes/todoRoutes";
 import userRoutes from "@/routes/userRoutes";
@@ -11,8 +11,11 @@ import { IUser } from "@/models/userModel";
 
 declare global {
   namespace Express {
+    type TReceivedUser = IUser & {
+      _id: Types.ObjectId;
+    };
     interface Request {
-      user?: IUser;
+      user?: TReceivedUser;
     }
   }
 }

@@ -131,3 +131,11 @@ export const refresh = catchAsync(async (req: Request, res: Response) => {
     }
   );
 });
+
+export const info = catchAsync(async (req: Request, res: Response) => {
+  if (!req.user)
+    return res.status(404).json({ message: "User does not exist !" });
+  const user: Partial<TReceivedUser> = JSON.parse(JSON.stringify(req.user));
+  delete user.password;
+  return res.json({ user, message: "user received successfully !" });
+});
