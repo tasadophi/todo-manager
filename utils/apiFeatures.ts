@@ -1,9 +1,9 @@
 import { Request } from "express";
-import { FilterQuery, Model } from "mongoose";
+import { FilterQuery, Query } from "mongoose";
 
-function apiFeatures<T>(Model: Model<T>, queryString: Request["query"]) {
+function apiFeatures<T>(query: Query<T[], T>, queryString: Request["query"]) {
   return {
-    query: Model.find(),
+    query,
     searchOnStrFields: function (fields: {
       [x: string]: Request["query"][keyof Request["query"]];
     }) {
@@ -32,7 +32,7 @@ function apiFeatures<T>(Model: Model<T>, queryString: Request["query"]) {
             throw new Error("startDate is invalid date !");
           return { $gte: startDate };
         }
-        return {};
+        return;
       };
       const getEndDate = () => {
         if (queryString.endDate) {
@@ -42,13 +42,23 @@ function apiFeatures<T>(Model: Model<T>, queryString: Request["query"]) {
             throw new Error("endDate is invalid date !");
           return { $lt: endDate };
         }
-        return {};
+        return;
       };
+      const getCreatedAt = () => {
+        const startDate = getStartDate();
+        const endDate = getEndDate();
+        if (startDate || endDate)
+          return {
+            createdAt: {
+              ...getStartDate(),
+              ...getEndDate(),
+            },
+          };
+        return;
+      };
+      getCreatedAt();
       this.query = this.query.find({
-        createdAt: {
-          ...getStartDate(),
-          ...getEndDate(),
-        },
+        ...getCreatedAt(),
       });
       return this;
     },

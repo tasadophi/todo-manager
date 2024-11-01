@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 import bcrypt from "bcryptjs";
 import validations from "@/utils/validations";
 
-export interface IUser {
+export interface IUser extends Document {
   email: string;
   name: string;
   password: string;

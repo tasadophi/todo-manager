@@ -5,13 +5,9 @@ import bcrypt from "bcryptjs";
 import UserModel, { IUser } from "@/models/userModel";
 import catchAsync from "@/utils/catchAsync";
 
-type TReceivedUser = IUser & {
-  _id: Types.ObjectId;
-};
-
 const calculateCookieAge = (day: number) => 24 * 60 * 60 * 1000 * day;
 
-const generateTokens = (user: TReceivedUser) => {
+const generateTokens = (user: IUser) => {
   const accessToken = jwt.sign(
     {
       id: user._id,
@@ -135,7 +131,7 @@ export const refresh = catchAsync(async (req: Request, res: Response) => {
 export const info = catchAsync(async (req: Request, res: Response) => {
   if (!req.user)
     return res.status(404).json({ message: "User does not exist !" });
-  const user: Partial<TReceivedUser> = JSON.parse(JSON.stringify(req.user));
+  const user: Partial<IUser> = JSON.parse(JSON.stringify(req.user));
   delete user.password;
   return res.json({ user, message: "user received successfully !" });
 });

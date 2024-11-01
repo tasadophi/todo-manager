@@ -11,11 +11,8 @@ import { IUser } from "@/models/userModel";
 
 declare global {
   namespace Express {
-    type TReceivedUser = IUser & {
-      _id: Types.ObjectId;
-    };
     interface Request {
-      user?: TReceivedUser;
+      user?: IUser;
     }
   }
 }
