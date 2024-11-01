@@ -22,7 +22,7 @@ const checkUserController = (
           // Check if the user exists
           const user = await UserModel.findOne({ _id: decoded?.id });
           if (!user)
-            return res.status(404).json({ message: "User does not exist !" });
+            return res.status(404).json({ message: "User not found !" });
           req.user = user;
           next();
         } else return res.status(401).json({ message: "Unauthorized" });

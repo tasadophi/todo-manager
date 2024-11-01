@@ -5,6 +5,7 @@ interface ITodo {
   description: string;
   isDone: boolean;
   isFavorite: boolean;
+  user: mongoose.Schema.Types.ObjectId;
 }
 
 const todoSchema = new mongoose.Schema<ITodo>(
@@ -16,6 +17,7 @@ const todoSchema = new mongoose.Schema<ITodo>(
     },
     isDone: { type: Boolean, default: false },
     isFavorite: { type: Boolean, default: false },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   },
   { versionKey: false, timestamps: true }
 );
