@@ -4,16 +4,11 @@ import catchAsync from "@/utils/catchAsync";
 import apiFeatures from "@/utils/apiFeatures";
 
 export const getTodos = catchAsync(async (req: Request, res: Response) => {
-  const { search } = req.query;
-
   const { items, ...paginationData } = await apiFeatures(
     TodoModel.find(),
     req.query
   )
-    .searchOnStrFields({
-      name: search,
-      description: search,
-    })
+    .searchByFields()
     .filterByDate()
     .sort()
     .paginate();
@@ -43,11 +38,11 @@ export const createTodo = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const updateTodo = catchAsync(async (req: Request, res: Response) => {
-  const { title, description, isDone } = req.body;
+  const { title, description, isDone, isFavorite } = req.body;
   const { id } = req.params;
   const todo = await TodoModel.findByIdAndUpdate(
     { _id: id },
-    { title, description, isDone },
+    { title, description, isDone, isFavorite },
     { runValidators: true, new: true }
   );
   if (!todo) res.status(404).json({ message: `todo ${id} not found !` });

@@ -4,6 +4,7 @@ interface ITodo {
   title: string;
   description: string;
   isDone: boolean;
+  isFavorite: boolean;
 }
 
 const todoSchema = new mongoose.Schema<ITodo>(
@@ -14,6 +15,7 @@ const todoSchema = new mongoose.Schema<ITodo>(
       required: [true, "description is required !"],
     },
     isDone: { type: Boolean, default: false },
+    isFavorite: { type: Boolean, default: false },
   },
   { versionKey: false, timestamps: true }
 );
