@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
-import UserModel, { IUser } from "@/models/userModel";
+import UserModel from "@/models/userModel";
 
 const checkUserController = (
   req: Request,

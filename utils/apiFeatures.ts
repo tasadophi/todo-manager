@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { FilterQuery, Query } from "mongoose";
+import { Query } from "mongoose";
 
 const disallowedSearchFields = [
   "_id",
@@ -10,6 +10,7 @@ const disallowedSearchFields = [
   "limit",
   "startDate",
   "endDate",
+  "user",
 ];
 
 function apiFeatures<T>(query: Query<T[], T>, queryString: Request["query"]) {
@@ -18,39 +19,40 @@ function apiFeatures<T>(query: Query<T[], T>, queryString: Request["query"]) {
     searchByFields: function () {
       // search on boolean and string fields
       const fields: Record<string, unknown> = {};
+      const booleanFilters: Record<string, boolean>[] = [];
       Object.keys(queryString).forEach((key) => {
         if (!disallowedSearchFields.includes(key)) {
           fields[key] = queryString[key];
         }
       });
-      const booleanFilters = Object.keys(fields)
-        .filter((key) => {
-          return ["false", "true"].includes(fields[key] as string);
-        })
-        .map((key) => {
-          return {
+      const strFilters: Record<
+        string,
+        {
+          $regex: string;
+          $options: string;
+        }
+      >[] = [];
+      Object.keys(fields).forEach((key) => {
+        if (["false", "true"].includes(fields[key] as string)) {
+          booleanFilters.push({
             [key]: fields[key] === "false" ? false : true,
-          };
-        });
-      const strFilters = Object.keys(fields)
-        .filter((key) => {
-          return !["false", "true"].includes(fields[key] as string);
-        })
-        .map((key) => {
-          return {
+          });
+        } else {
+          strFilters.push({
             [key]: {
               $regex: fields[key] ? ".*" + fields[key] + ".*" : "",
               $options: "i",
             },
-          };
-        });
+          });
+        }
+      });
       if (booleanFilters.length)
         this.query = this.query.find({
-          $and: booleanFilters as FilterQuery<T>[],
+          $and: booleanFilters,
         });
       if (strFilters.length)
         this.query = this.query.find({
-          $or: strFilters as FilterQuery<T>[],
+          $or: strFilters,
         });
       return this;
     },
