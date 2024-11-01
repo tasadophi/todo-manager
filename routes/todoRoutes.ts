@@ -6,8 +6,11 @@ import {
   getTodo,
   deleteTodo,
 } from "@/controllers/todoControllers";
+import checkUserController from "@/controllers/checkUserController";
 
 const todoRoutes = express.Router();
+
+todoRoutes.use(checkUserController);
 
 todoRoutes.get("/", getTodos);
 todoRoutes.get("/:id", getTodo);

@@ -5,9 +5,17 @@ import cors from "cors";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import todoRoutes from "@/routes/todoRoutes";
-import errorController from "@/controllers/errorController";
 import userRoutes from "@/routes/userRoutes";
+import errorController from "@/controllers/errorController";
+import { IUser } from "@/models/userModel";
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: IUser;
+    }
+  }
+}
 class Application {
   #app: Express = express();
   #PORT = process.env.PORT || 8000;
