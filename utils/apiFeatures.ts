@@ -1,23 +1,56 @@
 import { Request } from "express";
 import { FilterQuery, Query } from "mongoose";
 
+const disallowedSearchFields = [
+  "_id",
+  "createdAt",
+  "updatedAt",
+  "password",
+  "page",
+  "limit",
+  "startDate",
+  "endDate",
+];
+
 function apiFeatures<T>(query: Query<T[], T>, queryString: Request["query"]) {
   return {
     query,
-    searchOnStrFields: function (fields: {
-      [x: string]: Request["query"][keyof Request["query"]];
-    }) {
-      const filters = Object.keys(fields)
-        .map((key) => ({
-          [key]: { $regex: fields[key] ? ".*" + fields[key] + ".*" : "" },
-        }))
-        .filter(
-          (filter) =>
-            Object.values(filter).filter((value) => !!value.$regex).length
-        );
-      if (filters.length)
+    searchByFields: function () {
+      // search on boolean and string fields
+      const fields: Record<string, unknown> = {};
+      Object.keys(queryString).forEach((key) => {
+        if (!disallowedSearchFields.includes(key)) {
+          fields[key] = queryString[key];
+        }
+      });
+      const booleanFilters = Object.keys(fields)
+        .filter((key) => {
+          return ["false", "true"].includes(fields[key] as string);
+        })
+        .map((key) => {
+          return {
+            [key]: fields[key] === "false" ? false : true,
+          };
+        });
+      const strFilters = Object.keys(fields)
+        .filter((key) => {
+          return !["false", "true"].includes(fields[key] as string);
+        })
+        .map((key) => {
+          return {
+            [key]: {
+              $regex: fields[key] ? ".*" + fields[key] + ".*" : "",
+              $options: "i",
+            },
+          };
+        });
+      if (booleanFilters.length)
         this.query = this.query.find({
-          $or: filters as FilterQuery<T>[],
+          $and: booleanFilters as FilterQuery<T>[],
+        });
+      if (strFilters.length)
+        this.query = this.query.find({
+          $or: strFilters as FilterQuery<T>[],
         });
       return this;
     },
